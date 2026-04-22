@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: producer
+  Kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+#What you are actually configuring here:
+#bootstrap-servers: localhost:9092: This is the exact address and port where we told Docker to run Kafka. This is how your Java app finds the conveyor belt.
+#key-serializer & value-serializer: Kafka doesn't understand Java objects; it only understands raw bytes over a network.
+#These serializers act as translators. The JsonSerializer tells Spring Boot: "Whenever I give you a Java object, automatically translate it into a JSON string before pushing it to Kafka."
