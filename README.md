@@ -1,4 +1,4 @@
-readme_content = """# 🚀 Real-Time Data Reconciliation Engine
+🚀 Real-Time Data Reconciliation Engine
 
 > A distributed, event-driven microservices architecture built to simulate high-volume banking transactions and autonomously detect data loss in real-time across decoupled systems.
 
