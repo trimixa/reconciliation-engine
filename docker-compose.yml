@@ -6,6 +6,7 @@ services:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: password
       POSTGRES_DB: bank_reconciliation
+      TZ: Asia/Kolkata   # <--- Add this exact line!
     ports:
       - "5432:5432"
 
