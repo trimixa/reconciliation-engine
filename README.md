@@ -1,4 +1,4 @@
-🚀 Real-Time Data Reconciliation Engine
+# 🚀 Real-Time Data Reconciliation Engine
 
 > A distributed, event-driven microservices architecture built to simulate high-volume banking transactions and autonomously detect data loss in real-time across decoupled systems.
 
@@ -32,7 +32,7 @@ This system solves that by ingesting live data streams and performing sub-millis
 
 ## 🛠️ Tech Stack
 
-* **Language:** Java 21
+* **Language:** Java 25
 * **Framework:** Spring Boot (Web, Kafka, Data Redis, Data JPA)
 * **Message Broker:** Apache Kafka & Zookeeper
 * **In-Memory Cache:** Redis
@@ -45,7 +45,7 @@ This system solves that by ingesting live data streams and performing sub-millis
 
 ### Prerequisites
 * Docker Desktop installed and running
-* Java 21+ installed
+* Java 25 installed
 * Maven installed (or use your IDE's built-in Maven)
 
 ### Step 1: Spin up the Engine Room (Infrastructure)
