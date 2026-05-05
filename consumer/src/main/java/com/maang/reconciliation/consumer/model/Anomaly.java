@@ -15,6 +15,7 @@ public class Anomaly {
 
     private String failureReason;
     private long detectedTimestamp;
+    private String status = "OPEN";
 
     // RULE: Hibernate absolutely requires an empty constructor to work behind the scenes
     public Anomaly() {
@@ -36,4 +37,7 @@ public class Anomaly {
 
     public long getDetectedTimestamp() { return detectedTimestamp; }
     public void setDetectedTimestamp(long detectedTimestamp) { this.detectedTimestamp = detectedTimestamp; }
+
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
 }
