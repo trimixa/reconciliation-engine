@@ -1,5 +1,6 @@
 package com.maang.reconciliation.consumer.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.maang.reconciliation.consumer.model.Anomaly;
 import com.maang.reconciliation.consumer.model.Transaction;
 import com.maang.reconciliation.consumer.repository.AnomalyRepository;
@@ -10,11 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
-import com.maang.reconciliation.consumer.model.BufferedAnomaly;
 
-import java.util.Queue;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class ReconciliationService {
@@ -22,18 +22,28 @@ public class ReconciliationService {
     private static final Logger logger = LoggerFactory.getLogger(ReconciliationService.class);
     private final StringRedisTemplate redisTemplate;
     private final AnomalyRepository anomalyRepository;
+    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final ObjectMapper objectMapper;
 
-    // Self-injection to trigger Proxy (AOP) for the Circuit Breaker
     @Autowired
     @Lazy
     private ReconciliationService self;
 
-    public ReconciliationService(StringRedisTemplate redisTemplate, AnomalyRepository anomalyRepository) {
+    public ReconciliationService(StringRedisTemplate redisTemplate, 
+                                 AnomalyRepository anomalyRepository,
+                                 KafkaTemplate<String, String> kafkaTemplate,
+                                 ObjectMapper objectMapper) {
         this.redisTemplate = redisTemplate;
         this.anomalyRepository = anomalyRepository;
+        this.kafkaTemplate = kafkaTemplate;
+        this.objectMapper = objectMapper;
     }
 
-    // ... consumeCbsLog remains the same ...
+    @KafkaListener(topics = "cbs-logs", groupId = "reconciliation-group")
+    public void consumeCbsLog(Transaction transaction) {
+        logger.info("⬇️ [CBS] Received valid transaction: {}", transaction.transactionId());
+        redisTemplate.opsForValue().set(transaction.transactionId(), "CBS", 5, TimeUnit.MINUTES);
+    }
 
     @KafkaListener(topics = "datamart-logs", groupId = "reconciliation-group")
     public void consumeDatamartLog(Transaction transaction) {
@@ -46,37 +56,22 @@ public class ReconciliationService {
 
             Anomaly anomaly = new Anomaly(transaction.transactionId(), "Missing in Core Banking System", System.currentTimeMillis());
 
-            // CRITICAL: Call via 'self' to trigger the Circuit Breaker proxy
             self.saveAnomalyWithCircuitBreaker(anomaly);
         }
     }
 
-    // Must be PUBLIC for the Proxy to see it
     @CircuitBreaker(name = "databaseService", fallbackMethod = "saveAnomalyFallback")
     public void saveAnomalyWithCircuitBreaker(Anomaly anomaly) {
-        // This call will now be intercepted by Resilience4j
         anomalyRepository.save(anomaly);
     }
 
-    // Fallback must be PUBLIC or PROTECTED and match signature
-//    public void saveAnomalyFallback(Anomaly anomaly, Throwable t) {
-//        logger.error("🚨 CIRCUIT OPEN: Database unavailable. TXN {} cached in logs: {}",
-//                anomaly.getTransactionId(), t.getMessage());
-//    }
-    @Autowired
-    private AnomalyBufferService anomalyBufferService;
-
-    // REPLACE THE OLD FALLBACK METHOD WITH THIS:
     public void saveAnomalyFallback(Anomaly anomaly, Throwable t) {
-        logger.error("🚨 [CIRCUIT OPEN] Database unavailable. Buffering TXN {} {} in memory", anomaly.getTransactionId(), t.getMessage());
-
-        // Convert Anomaly to BufferedAnomaly and store
-        BufferedAnomaly bufferedAnomaly = new BufferedAnomaly(
-                anomaly.getTransactionId(),
-                anomaly.getFailureReason(),
-                anomaly.getDetectedTimestamp()
-        );
-
-        anomalyBufferService.bufferAnomaly(bufferedAnomaly);
+        logger.error("🚨 [CIRCUIT OPEN] Database unavailable. Sending TXN {} to DLQ. Reason: {}", anomaly.getTransactionId(), t.getMessage());
+        try {
+            String anomalyJson = objectMapper.writeValueAsString(anomaly);
+            kafkaTemplate.send("anomaly-dlq", anomalyJson);
+        } catch (Exception e) {
+            logger.error("🔥 [FATAL] Failed to serialize or send anomaly to DLQ: {}", anomaly.getTransactionId(), e);
+        }
     }
 }

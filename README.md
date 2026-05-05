@@ -32,7 +32,7 @@ This system solves that by ingesting live data streams and performing sub-millis
 
 ## 🛠️ Tech Stack
 
-* **Language:** Java 25
+* **Language:** Java 21
 * **Framework:** Spring Boot (Web, Kafka, Data Redis, Data JPA)
 * **Message Broker:** Apache Kafka & Zookeeper
 * **In-Memory Cache:** Redis
@@ -45,7 +45,7 @@ This system solves that by ingesting live data streams and performing sub-millis
 
 ### Prerequisites
 * Docker Desktop installed and running
-* Java 25 installed
+* Java 21 installed
 * Maven installed (or use your IDE's built-in Maven)
 
 ### Step 1: Spin up the Engine Room (Infrastructure)
