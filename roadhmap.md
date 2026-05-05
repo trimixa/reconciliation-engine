@@ -37,13 +37,13 @@ The core backend processing loop is fully operational.
     - Integrate `springdoc-openapi` for Swagger API documentation.
     - Ensure comprehensive endpoint documentation and error handling.
 
-### Phase 3: Remediation (Business Logic)
+### Phase 3: Remediation (Business Logic) ✅ COMPLETE
 * **Goal:** Allow users or automated scripts to fix bad data.
 * **Tasks:**
-    - Implement a `POST /api/anomalies/{id}/resolve` endpoint.
-    - Update the PostgreSQL database state upon resolution.
-    - Trigger correction events back into Kafka for system consistency.
-    - Ensure proper transaction management and error handling.
+    - ✅ Implement a `POST /api/anomalies/{id}/resolve` endpoint.
+    - ✅ Update the PostgreSQL database state upon resolution.
+    - ✅ Trigger correction events back into Kafka for system consistency.
+    - ✅ Ensure proper transaction management (`@Transactional`) and error handling.
 
 ### Phase 4: Quality Assurance
 * **Goal:** Prove system reliability.

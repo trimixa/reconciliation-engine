@@ -27,6 +27,9 @@ public class RemediationService {
 
     @Transactional
     public void resolveAnomaly(String transactionId) {
+        if (transactionId == null) {
+            throw new IllegalArgumentException("Transaction ID must not be null");
+        }
         logger.info("🛠️ [REMEDIATION] Attempting to resolve anomaly for transaction: {}", transactionId);
         
         // 1. Fetch from database

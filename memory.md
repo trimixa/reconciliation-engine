@@ -27,18 +27,18 @@
 - Standardized entire repository to Java 21 LTS
 - Resolved strict IDE static analyzer warnings for Null Type Safety across services
 - Cleaned up obsolete test files (`AnomalyBufferTest.java`)
+- Implemented Phase 3 Remediation API (resolving anomalies, `@Transactional` DB updates, Kafka events)
 
 ### 🔄 In Progress
-- Implement Phase 4 Remediation API (resolving anomalies via Kafka events)
+- Implement Integration Tests (Testcontainers)
 
 ### ⏳ TODO
 - High-volume load testing
-- Implement Integration Tests (Testcontainers)
 
 ## Last Session
 - **Date:** [05-05-2026]
-- **What I did:** Performed a deep-dive architectural review. Found and fixed critical vulnerabilities: restored missing `consumeCbsLog`, increased Redis TTL from 60s to 5m to avoid race conditions, replaced an unsafe in-memory fallback queue with a Kafka DLQ (`anomaly-dlq`), and standardized the codebase to Java 21 LTS. Additionally, resolved multiple strict "Null Type Safety" warnings enforced by static analyzers and removed obsolete test files.
-- **Where I stopped:** The backend is now highly resilient and correctly matches transactions. Next up: building advanced Remediation APIs to replay failed events.
+- **What I did:** Completely implemented Phase 3 (Remediation API). Added state tracking to the `Anomaly` entity (`"OPEN"` / `"RESOLVED"`). Created a `RemediationService` with a `@Transactional` method to safely update PostgreSQL and publish resolution events back to a new Kafka topic (`resolved-transactions`) atomically. Exposed this via `POST /api/anomalies/{id}/resolve`. 
+- **Where I stopped:** The backend is fully capable of real-time matching and manual remediation. Next up: building automated Integration Tests using Testcontainers to spin up ephemeral Kafka and Postgres instances during testing.
 
 ## Key Decisions
 - **Architecture:** Redis TTL = 5 minutes; Orphaned transactions → PostgreSQL vault. If vault is offline → Kafka DLQ (`anomaly-dlq`).
