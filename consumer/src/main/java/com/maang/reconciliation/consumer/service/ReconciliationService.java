@@ -10,7 +10,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import com.maang.reconciliation.consumer.model.BufferedAnomaly;
+
+import java.util.Queue;
 
 @Service
 public class ReconciliationService {
@@ -40,11 +44,7 @@ public class ReconciliationService {
         } else {
             logger.warn("⚠️ [ORPHAN] DataMart log has no matching CBS record! Saving to Vault: {}", transaction.transactionId());
 
-            Anomaly anomaly = new Anomaly(
-                    transaction.transactionId(),
-                    "Missing in Core Banking System",
-                    System.currentTimeMillis()
-            );
+            Anomaly anomaly = new Anomaly(transaction.transactionId(), "Missing in Core Banking System", System.currentTimeMillis());
 
             // CRITICAL: Call via 'self' to trigger the Circuit Breaker proxy
             self.saveAnomalyWithCircuitBreaker(anomaly);
@@ -59,8 +59,24 @@ public class ReconciliationService {
     }
 
     // Fallback must be PUBLIC or PROTECTED and match signature
+//    public void saveAnomalyFallback(Anomaly anomaly, Throwable t) {
+//        logger.error("🚨 CIRCUIT OPEN: Database unavailable. TXN {} cached in logs: {}",
+//                anomaly.getTransactionId(), t.getMessage());
+//    }
+    @Autowired
+    private AnomalyBufferService anomalyBufferService;
+
+    // REPLACE THE OLD FALLBACK METHOD WITH THIS:
     public void saveAnomalyFallback(Anomaly anomaly, Throwable t) {
-        logger.error("🚨 CIRCUIT OPEN: Database unavailable. TXN {} cached in logs: {}",
-                anomaly.getTransactionId(), t.getMessage());
+        logger.error("🚨 [CIRCUIT OPEN] Database unavailable. Buffering TXN {} {} in memory", anomaly.getTransactionId(), t.getMessage());
+
+        // Convert Anomaly to BufferedAnomaly and store
+        BufferedAnomaly bufferedAnomaly = new BufferedAnomaly(
+                anomaly.getTransactionId(),
+                anomaly.getFailureReason(),
+                anomaly.getDetectedTimestamp()
+        );
+
+        anomalyBufferService.bufferAnomaly(bufferedAnomaly);
     }
 }
