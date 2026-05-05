@@ -10,7 +10,7 @@ This project is an enterprise-grade, event-driven reconciliation system designed
 * **Caching & State Management:** Redis (In-Memory Data Structure Store)
 * **Persistent Storage:** PostgreSQL (Relational Vault)
 * **Infrastructure:** Docker, Docker Compose
-* **Target Frontend:** React, Chart.js
+* **API Documentation:** Swagger UI / OpenAPI
 
 ## 3. System Architecture & Data Flow
 1. **Producer Service:** Simulates a banking environment. It emits valid transactions and intentionally introduces a 10% failure rate to simulate network drops, pushing events to a Kafka topic.
@@ -37,57 +37,49 @@ The core backend processing loop is fully operational.
     - Integrate `springdoc-openapi` for Swagger API documentation.
     - Ensure comprehensive endpoint documentation and error handling.
 
-### Phase 3: Visualization (Frontend Dashboard)
-* **Goal:** Provide operational intelligence to stakeholders.
-* **Tasks:**
-    - Scaffold a React application.
-    - Build a dashboard using Chart.js to visualize real-time transaction throughput and current anomaly counts.
-    - Display a data grid of the latest orphaned transactions fetched from the REST API.
-    - Implement user-friendly filters, search functionalities, and drill-down capabilities.
-
-### Phase 4: Remediation (Business Logic)
-* **Goal:** Allow users to fix bad data.
+### Phase 3: Remediation (Business Logic)
+* **Goal:** Allow users or automated scripts to fix bad data.
 * **Tasks:**
     - Implement a `POST /api/anomalies/{id}/resolve` endpoint.
-    - Update the database state upon resolution.
+    - Update the PostgreSQL database state upon resolution.
     - Trigger correction events back into Kafka for system consistency.
     - Ensure proper transaction management and error handling.
 
-### Phase 5: Quality Assurance
+### Phase 4: Quality Assurance
 * **Goal:** Prove system reliability.
 * **Tasks:**
     - Implement automated testing using **Testcontainers** to spin up ephemeral Kafka and PostgreSQL instances.
     - Write integration tests verifying the anomaly detection logic.
     - Establish a CI/CD pipeline for automated builds, tests, and deployments.
 
-### Phase 6: Scalability and Fault Tolerance
+### Phase 5: Scalability and Fault Tolerance
 * **Goal:** Ensure high availability and fault tolerance in production.
 * **Tasks:**
     - Design horizontal scaling strategies using load balancers and auto-scaling groups.
     - Implement circuit breakers (Resilience4j) to handle unexpected loads gracefully (✅ DLQ Fallback implemented).
     - Plan for disaster recovery and backup strategies.
 
-### Phase 7: Security Enhancements
+### Phase 6: Security Enhancements
 * **Goal:** Secure the application from potential threats.
 * **Tasks:**
     - Integrate Spring Security for authentication and authorization.
     - Implement role-based access control (RBAC).
     - Encrypt sensitive data at rest and in transit.
 
-### Phase 8: Monitoring and Logging
+### Phase 7: Monitoring and Logging
 * **Goal:** Implement robust monitoring and logging.
 * **Tasks:**
     - Integrate monitoring tools like Prometheus and Grafana.
     - Set up log aggregation using tools like ELK Stack for efficient troubleshooting.
 
-### Phase 9: User Interface Enhancements
-* **Goal:** Improve the dashboard's usability and aesthetics.
+### Phase 8: API & System Tuning
+* **Goal:** Improve API performance and system throughput.
 * **Tasks:**
-    - Implement responsive design considerations.
-    - Add interactive elements and real-time updates using WebSocket or Server-Sent Events (SSE).
-    - Ensure accessibility compliance with standards like WCAG.
+    - Implement advanced pagination for the REST APIs.
+    - Tune Kafka consumer concurrency settings.
+    - Optimize PostgreSQL indexes for fast querying of anomalies.
 
-### Phase 10: Documentation and Maintenance
+### Phase 9: Documentation and Maintenance
 * **Goal:** Maintain comprehensive documentation for long-term sustainability.
 * **Tasks:**
     - Document the system architecture, API endpoints, and operational procedures.

@@ -41,20 +41,30 @@ public class ReconciliationService {
 
     @KafkaListener(topics = "cbs-logs", groupId = "reconciliation-group")
     public void consumeCbsLog(Transaction transaction) {
-        logger.info("⬇️ [CBS] Received valid transaction: {}", transaction.transactionId());
-        redisTemplate.opsForValue().set(transaction.transactionId(), "CBS", 5, TimeUnit.MINUTES);
+        String txId = transaction.transactionId();
+        if (txId == null) {
+            logger.warn("⚠️ [CBS] Received transaction with null ID, skipping.");
+            return;
+        }
+        logger.info("⬇️ [CBS] Received valid transaction: {}", txId);
+        redisTemplate.opsForValue().set(txId, "CBS", 5, TimeUnit.MINUTES);
     }
 
     @KafkaListener(topics = "datamart-logs", groupId = "reconciliation-group")
     public void consumeDatamartLog(Transaction transaction) {
-        Boolean wasFoundAndDeleted = redisTemplate.delete(transaction.transactionId());
+        String txId = transaction.transactionId();
+        if (txId == null) {
+            logger.warn("⚠️ [DataMart] Received transaction with null ID, skipping.");
+            return;
+        }
+        Boolean wasFoundAndDeleted = redisTemplate.delete(txId);
 
         if (Boolean.TRUE.equals(wasFoundAndDeleted)) {
-            logger.info("✅ [MATCHED] Transaction safely reconciled: {}", transaction.transactionId());
+            logger.info("✅ [MATCHED] Transaction safely reconciled: {}", txId);
         } else {
-            logger.warn("⚠️ [ORPHAN] DataMart log has no matching CBS record! Saving to Vault: {}", transaction.transactionId());
+            logger.warn("⚠️ [ORPHAN] DataMart log has no matching CBS record! Saving to Vault: {}", txId);
 
-            Anomaly anomaly = new Anomaly(transaction.transactionId(), "Missing in Core Banking System", System.currentTimeMillis());
+            Anomaly anomaly = new Anomaly(txId, "Missing in Core Banking System", System.currentTimeMillis());
 
             self.saveAnomalyWithCircuitBreaker(anomaly);
         }
@@ -62,6 +72,7 @@ public class ReconciliationService {
 
     @CircuitBreaker(name = "databaseService", fallbackMethod = "saveAnomalyFallback")
     public void saveAnomalyWithCircuitBreaker(Anomaly anomaly) {
+        if (anomaly == null) return;
         anomalyRepository.save(anomaly);
     }
 

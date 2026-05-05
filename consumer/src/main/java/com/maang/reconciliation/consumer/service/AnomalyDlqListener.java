@@ -23,14 +23,19 @@ public class AnomalyDlqListener {
     @KafkaListener(topics = "anomaly-dlq", groupId = "dlq-reconciliation-group")
     public void consumeDlq(String anomalyJson) throws Exception {
         logger.info("📥 [DLQ CONSUMER] Received message from DLQ: {}", anomalyJson);
-        
+
         Anomaly anomaly = objectMapper.readValue(anomalyJson, Anomaly.class);
-        
+        if (anomaly == null) {
+            logger.warn("⚠️ [DLQ CONSUMER] Deserialized anomaly is null, skipping.");
+            return;
+        }
+
         // Attempt to save to vault
         // If the database is still down, this will throw a DataAccessException
         // and Spring Kafka will automatically retry with backoff.
         anomalyRepository.save(anomaly);
-        
-        logger.info("✅ [DLQ RECOVERED] Successfully saved previously failed TXN {} to vault", anomaly.getTransactionId());
+
+        logger.info("✅ [DLQ RECOVERED] Successfully saved previously failed TXN {} to vault",
+                anomaly.getTransactionId());
     }
 }

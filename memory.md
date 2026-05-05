@@ -25,18 +25,20 @@
 - Fixed catastrophic code loss (restored `consumeCbsLog`)
 - Replaced volatile memory buffer with robust Kafka DLQ (`anomaly-dlq`)
 - Standardized entire repository to Java 21 LTS
+- Resolved strict IDE static analyzer warnings for Null Type Safety across services
+- Cleaned up obsolete test files (`AnomalyBufferTest.java`)
 
 ### 🔄 In Progress
-- Build React/Chart.js front-end dashboard
+- Implement Phase 4 Remediation API (resolving anomalies via Kafka events)
 
 ### ⏳ TODO
-- High-volume testing
-- Implement Phase 4 Remediation logic
+- High-volume load testing
+- Implement Integration Tests (Testcontainers)
 
 ## Last Session
 - **Date:** [05-05-2026]
-- **What I did:** Performed a deep-dive architectural review. Found and fixed critical vulnerabilities: restored missing `consumeCbsLog`, increased Redis TTL from 60s to 5m to avoid race conditions, replaced an unsafe in-memory fallback queue with a Kafka DLQ (`anomaly-dlq`), and standardized the codebase to Java 21 LTS.
-- **Where I stopped:** The backend is now highly resilient and correctly matches transactions. Ready to start developing the React front-end dashboard next.
+- **What I did:** Performed a deep-dive architectural review. Found and fixed critical vulnerabilities: restored missing `consumeCbsLog`, increased Redis TTL from 60s to 5m to avoid race conditions, replaced an unsafe in-memory fallback queue with a Kafka DLQ (`anomaly-dlq`), and standardized the codebase to Java 21 LTS. Additionally, resolved multiple strict "Null Type Safety" warnings enforced by static analyzers and removed obsolete test files.
+- **Where I stopped:** The backend is now highly resilient and correctly matches transactions. Next up: building advanced Remediation APIs to replay failed events.
 
 ## Key Decisions
 - **Architecture:** Redis TTL = 5 minutes; Orphaned transactions → PostgreSQL vault. If vault is offline → Kafka DLQ (`anomaly-dlq`).
