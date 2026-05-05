@@ -4,7 +4,7 @@
 This project is an enterprise-grade, event-driven reconciliation system designed to validate data integrity between core banking systems and downstream analytics platforms. It detects anomalous or "orphaned" transactions in real-time, replacing slow, manual nightly batch processes with a sub-millisecond automated control loop.
 
 ## 2. Technical Stack
-* **Languages:** Java 21+
+* **Languages:** Java 21 LTS (Standardized)
 * **Frameworks:** Spring Boot (Data JPA, Redis, Web), Hibernate
 * **Event Streaming:** Apache Kafka
 * **Caching & State Management:** Redis (In-Memory Data Structure Store)
@@ -16,8 +16,8 @@ This project is an enterprise-grade, event-driven reconciliation system designed
 1. **Producer Service:** Simulates a banking environment. It emits valid transactions and intentionally introduces a 10% failure rate to simulate network drops, pushing events to a Kafka topic.
 2. **Kafka Broker:** Decouples the data ingestion, handling high-throughput event streams.
 3. **Consumer Service (The Engine):** Listens to the Kafka topics.
-4. **Redis Matching (The Brain):** Temporarily stores transaction IDs with a **60-second Time-To-Live (TTL)**. It performs cross-stream matching to pair incoming records.
-5. **PostgreSQL Vault (The Record):** If a transaction is not matched within the 60s TTL, it is classified as an "orphan/anomaly" and permanently persisted to the `system_anomalies` table using Spring Data JPA.
+4. **Redis Matching (The Brain):** Temporarily stores transaction IDs with a **5-minute Time-To-Live (TTL)**. It performs cross-stream matching to pair incoming records.
+5. **PostgreSQL Vault (The Record):** If a transaction is not matched within the 5m TTL, it is classified as an "orphan/anomaly" and permanently persisted to the `system_anomalies` table using Spring Data JPA. If the database goes down, anomalies are safely routed to a **Kafka Dead Letter Queue (DLQ)**.
 
 ## 4. Current Project State: Phase 1 Complete
 The core backend processing loop is fully operational.
@@ -64,7 +64,7 @@ The core backend processing loop is fully operational.
 * **Goal:** Ensure high availability and fault tolerance in production.
 * **Tasks:**
     - Design horizontal scaling strategies using load balancers and auto-scaling groups.
-    - Implement circuit breakers (e.g., Hystrix) to handle unexpected loads gracefully.
+    - Implement circuit breakers (Resilience4j) to handle unexpected loads gracefully (✅ DLQ Fallback implemented).
     - Plan for disaster recovery and backup strategies.
 
 ### Phase 7: Security Enhancements

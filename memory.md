@@ -2,7 +2,7 @@
 
 ## Stack & Environment
 - **Backend:** Java + Spring Boot (Producer & Consumer)
-- **Infrastructure:** Apache Kafka (Message Broker), Redis (Matching Cache, 60s TTL), PostgreSQL (Permanent Vault), Docker Compose
+- **Infrastructure:** Apache Kafka (Message Broker), Redis (Matching Cache, 5-minute TTL), PostgreSQL (Permanent Vault), Docker Compose
 - **IDE:** IntelliJ IDEA
 - **Local AI Command Center (Continue.dev):**
   - Main coding model: Qwen 2.5 Coder 32B (local, Ollama via RTX 5070 Ti VRAM)
@@ -17,27 +17,29 @@
 - Kafka setup & configuration
 - Docker Compose infrastructure
 - Consumer service (Reconciliation Engine)
-- Redis cross-stream matching logic & TTL expiry handler
+- Redis cross-stream matching logic & 5m TTL expiry handler
 - Orphaned transaction vault (PostgreSQL via Spring Data JPA)
 - Zero-cost local AI coding setup inside IntelliJ to bypass cloud limits
+- Built REST API layer (`ReconciliationController` with `GET /api/anomalies`)
+- Setup Swagger/OpenAPI documentation
+- Fixed catastrophic code loss (restored `consumeCbsLog`)
+- Replaced volatile memory buffer with robust Kafka DLQ (`anomaly-dlq`)
+- Standardized entire repository to Java 21 LTS
 
 ### 🔄 In Progress
-- Refactored `saveAnomaly` method in `ReconciliationService.java` to ensure the circuit breaker trips immediately if the database is down.
+- Build React/Chart.js front-end dashboard
 
 ### ⏳ TODO
-- Build REST API layer (`ReconciliationController` with `GET /api/anomalies`)
-- Setup Swagger/OpenAPI documentation
-- Build React/Chart.js front-end dashboard
 - High-volume testing
+- Implement Phase 4 Remediation logic
 
 ## Last Session
 - **Date:** [05-05-2026]
-- **What I did:** Refactored the `saveAnomaly` method in `ReconciliationService.java` to ensure that the circuit breaker trips immediately if the database is down. Verified that the refactoring works as expected by simulating a database outage.
-- **Where I stopped:** Backend engine is verified with the new refactoring. Ready to start developing the REST API layer next. 
-- Implemented the `ReconciliationController` with the `GET /api/anomalies` endpoint.
+- **What I did:** Performed a deep-dive architectural review. Found and fixed critical vulnerabilities: restored missing `consumeCbsLog`, increased Redis TTL from 60s to 5m to avoid race conditions, replaced an unsafe in-memory fallback queue with a Kafka DLQ (`anomaly-dlq`), and standardized the codebase to Java 21 LTS.
+- **Where I stopped:** The backend is now highly resilient and correctly matches transactions. Ready to start developing the React front-end dashboard next.
 
 ## Key Decisions
-- **Architecture:** Redis TTL = 60s; Orphaned transactions → PostgreSQL vault.
+- **Architecture:** Redis TTL = 5 minutes; Orphaned transactions → PostgreSQL vault. If vault is offline → Kafka DLQ (`anomaly-dlq`).
 - **Workflow:** Use AI to learn and review (not just vibe code). DeepSeek R1 is reserved for Chat/Reasoning mode.
 - **Tooling:** Sticking with IntelliJ IDEA by utilizing free, local LLMs to replace expensive cloud subscriptions, achieving a ₹0 setup cost.
 
