@@ -28,17 +28,19 @@
 - Resolved strict IDE static analyzer warnings for Null Type Safety across services
 - Cleaned up obsolete test files (`AnomalyBufferTest.java`)
 - Implemented Phase 3 Remediation API (resolving anomalies, `@Transactional` DB updates, Kafka events)
+- Completed Phase 2 Visibility (REST API) with Swagger UI and `/api/anomalies/stats` endpoint
+- Implemented Phase 4 Quality Assurance (Testcontainers Integration Tests, GitHub Actions CI/CD)
 
 ### 🔄 In Progress
-- Implement Integration Tests (Testcontainers)
+- Finalize system scaling and disaster recovery strategies (Phase 5)
 
 ### ⏳ TODO
 - High-volume load testing
 
 ## Last Session
-- **Date:** [05-05-2026]
-- **What I did:** Completely implemented Phase 3 (Remediation API). Added state tracking to the `Anomaly` entity (`"OPEN"` / `"RESOLVED"`). Created a `RemediationService` with a `@Transactional` method to safely update PostgreSQL and publish resolution events back to a new Kafka topic (`resolved-transactions`) atomically. Exposed this via `POST /api/anomalies/{id}/resolve`. 
-- **Where I stopped:** The backend is fully capable of real-time matching and manual remediation. Next up: building automated Integration Tests using Testcontainers to spin up ephemeral Kafka and Postgres instances during testing.
+- **Date:** [05-06-2026]
+- **What I did:** Completed Phase 4 (Quality Assurance). Wrote `ReconciliationIntegrationTest` utilizing Testcontainers for Kafka, Redis, and Postgres. Added GitHub Actions CI pipeline (`ci.yml`) to automatically test the `consumer` and `producer` applications on pull requests.
+- **Where I stopped:** The CI pipeline and Integration Tests are in place. Next up: building horizontal scaling strategies and disaster recovery (Phase 5).
 
 ## Key Decisions
 - **Architecture:** Redis TTL = 5 minutes; Orphaned transactions → PostgreSQL vault. If vault is offline → Kafka DLQ (`anomaly-dlq`).
@@ -51,6 +53,7 @@
 **Accomplishments:**
 - Implemented Swagger/OpenAPI documentation and verified it at http://localhost:8081/swagger-ui/index.html.
 - The `GET /api/anomalies` endpoint is now visible and interactable through the Swagger UI.
+- Implemented the `GET /api/anomalies/stats` endpoint to return system metrics (total anomalies, open vs resolved, resolution rate).
 
 ### Phase 3: Resiliency
 **Progress:**

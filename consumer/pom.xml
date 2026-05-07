@@ -81,7 +81,6 @@
             <artifactId>spring-kafka-test</artifactId>
             <scope>test</scope>
         </dependency>
-
         <!-- Testcontainers -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

@@ -7,4 +7,5 @@ import org.springframework.stereotype.Repository;
 // JpaRepository gives us built-in methods like .save(), .findAll(), and .findById() automatically!
 @Repository
 public interface AnomalyRepository extends JpaRepository<Anomaly, String> {
+    long countByStatus(String status);
 }

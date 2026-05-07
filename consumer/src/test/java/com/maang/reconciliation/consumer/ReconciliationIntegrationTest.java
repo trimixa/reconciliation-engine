@@ -18,6 +18,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.Optional;
 
@@ -32,14 +33,18 @@ class ReconciliationIntegrationTest {
 
     @Container
     @ServiceConnection
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15");
+    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15")
+            .withDatabaseName("bank_reconciliation")
+            .withUsername("admin")
+            .withPassword("password");
 
     @Container
     @ServiceConnection
     static KafkaContainer kafka = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.3.0"));
 
     @Container
-    static GenericContainer<?> redis = new GenericContainer<>("redis:alpine").withExposedPorts(6379);
+    static GenericContainer<?> redis = new GenericContainer<>("redis:alpine")
+            .withExposedPorts(6379);
 
     @DynamicPropertySource
     static void configureProperties(DynamicPropertyRegistry registry) {
@@ -57,23 +62,23 @@ class ReconciliationIntegrationTest {
     private ObjectMapper objectMapper;
 
     @Test
-    void testDatamartOrphanBecomesAnomaly() throws Exception {
-        // Given a mock transaction ID that does NOT exist in CBS (Redis)
-        String orphanTxId = "TXN-TEST-999";
-        Transaction mockTx = new Transaction(orphanTxId, "ACC-123", new java.math.BigDecimal("100.50"), "DATAMART", System.currentTimeMillis());
-        String payload = objectMapper.writeValueAsString(mockTx);
+    void testAnomalyCreationForUnmatchedDatamartLog() throws Exception {
+        // Arrange
+        String txId = "TEST-TX-12345";
+        Transaction datamartTx = new Transaction(txId, "ACC-999", new BigDecimal("500.00"), "DATAMART", System.currentTimeMillis());
+        String payload = objectMapper.writeValueAsString(datamartTx);
 
-        // When we push it directly to datamart-logs
+        // Act - Send to datamart-logs without sending to cbs-logs first
         kafkaTemplate.send("datamart-logs", payload);
 
-        // Then the consumer should process it, fail to find it in Redis, 
-        // and vault it as an Anomaly within a few seconds.
+        // Assert - Verify that an anomaly is created within 10 seconds
         await().atMost(Duration.ofSeconds(10)).untilAsserted(() -> {
-            Optional<Anomaly> anomalyOpt = anomalyRepository.findById(orphanTxId);
-            assertTrue(anomalyOpt.isPresent(), "Anomaly should be saved in DB");
+            Optional<Anomaly> anomalyOpt = anomalyRepository.findById(txId);
+            assertTrue(anomalyOpt.isPresent(), "Anomaly should be created in the database");
             
             Anomaly anomaly = anomalyOpt.get();
-            assertEquals("OPEN", anomaly.getStatus(), "Status should default to OPEN");
+            assertEquals("Missing in Core Banking System", anomaly.getFailureReason());
+            assertEquals("OPEN", anomaly.getStatus());
         });
     }
 }

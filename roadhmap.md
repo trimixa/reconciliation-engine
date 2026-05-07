@@ -28,14 +28,14 @@ The core backend processing loop is fully operational.
 
 ## 5. Next Steps Roadmap (Full-Stack Evolution)
 
-### Phase 2: Visibility (REST API)
+### Phase 2: Visibility (REST API) ✅ COMPLETE
 * **Goal:** Expose the data stored in the PostgreSQL vault.
 * **Tasks:**
-    - Create a `ReconciliationController` in the Spring Boot Consumer app.
-    - Implement `GET /api/anomalies` to fetch records from the `AnomalyRepository`.
-    - Implement `GET /api/anomalies/stats` to return metrics (total orphans, resolution rate).
-    - Integrate `springdoc-openapi` for Swagger API documentation.
-    - Ensure comprehensive endpoint documentation and error handling.
+    - ✅ Create a `ReconciliationController` in the Spring Boot Consumer app.
+    - ✅ Implement `GET /api/anomalies` to fetch records from the `AnomalyRepository`.
+    - ✅ Implement `GET /api/anomalies/stats` to return metrics (total orphans, resolution rate).
+    - ✅ Integrate `springdoc-openapi` for Swagger API documentation.
+    - ✅ Ensure comprehensive endpoint documentation and error handling.
 
 ### Phase 3: Remediation (Business Logic) ✅ COMPLETE
 * **Goal:** Allow users or automated scripts to fix bad data.
@@ -45,12 +45,12 @@ The core backend processing loop is fully operational.
     - ✅ Trigger correction events back into Kafka for system consistency.
     - ✅ Ensure proper transaction management (`@Transactional`) and error handling.
 
-### Phase 4: Quality Assurance
+### Phase 4: Quality Assurance ✅ COMPLETE
 * **Goal:** Prove system reliability.
 * **Tasks:**
-    - Implement automated testing using **Testcontainers** to spin up ephemeral Kafka and PostgreSQL instances.
-    - Write integration tests verifying the anomaly detection logic.
-    - Establish a CI/CD pipeline for automated builds, tests, and deployments.
+    - ✅ Implement automated testing using **Testcontainers** to spin up ephemeral Kafka and PostgreSQL instances.
+    - ✅ Write integration tests verifying the anomaly detection logic.
+    - ✅ Establish a CI/CD pipeline for automated builds, tests, and deployments.
 
 ### Phase 5: Scalability and Fault Tolerance
 * **Goal:** Ensure high availability and fault tolerance in production.
