@@ -2,15 +2,22 @@ package com.maang.reconciliation.consumer;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import java.util.TimeZone; // <-- Add this import
+
+import jakarta.annotation.PostConstruct;
+import java.util.TimeZone;
 
 @SpringBootApplication
 public class ConsumerApplication {
 
     public static void main(String[] args) {
-        // Force Java to use the modern timezone name before it talks to Postgres
-        TimeZone.setDefault(TimeZone.getTimeZone("Asia/Kolkata"));
-
         SpringApplication.run(ConsumerApplication.class, args);
+    }
+
+    @PostConstruct
+    public void init() {
+        // Fixes "FATAL: invalid value for parameter TimeZone: Asia/Calcutta"
+        // by forcing the JVM to use the modern "Asia/Kolkata" timezone identifier
+        // which the latest PostgreSQL versions require.
+        TimeZone.setDefault(TimeZone.getTimeZone("Asia/Kolkata"));
     }
 }
