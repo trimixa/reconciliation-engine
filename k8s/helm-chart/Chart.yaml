@@ -1,0 +1,6 @@
+apiVersion: v2
+name: reconciliation-engine
+description: A Helm chart for deploying the full Reconciliation Engine stack
+type: application
+version: 0.1.0
+appVersion: "1.0"

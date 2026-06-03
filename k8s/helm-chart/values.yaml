@@ -1,0 +1,15 @@
+consumer:
+  replicaCount: 2
+  image: "maang/reconciliation-consumer:latest"
+producer:
+  replicaCount: 1
+  image: "maang/reconciliation-producer:latest"
+infrastructure:
+  postgres:
+    enabled: true
+  redis:
+    enabled: true
+  kafka:
+    enabled: true
+  zipkin:
+    enabled: true

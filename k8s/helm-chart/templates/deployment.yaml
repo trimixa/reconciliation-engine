@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: consumer-deployment
+spec:
+  replicas: {{ .Values.consumer.replicaCount }}
+  selector:
+    matchLabels:
+      app: consumer
+  template:
+    metadata:
+      labels:
+        app: consumer
+    spec:
+      containers:
+      - name: consumer
+        image: {{ .Values.consumer.image }}
+        ports:
+        - containerPort: 8081
+        env:
+        - name: SPRING_DATASOURCE_URL
+          value: jdbc:postgresql://postgres-service:5432/bank_reconciliation
+        - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
+          value: kafka-service:9092
+        - name: SPRING_DATA_REDIS_HOST
+          value: redis-service
+        - name: MANAGEMENT_ZIPKIN_TRACING_ENDPOINT
+          value: http://zipkin-service:9411/api/v2/spans
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: producer-deployment
+spec:
+  replicas: {{ .Values.producer.replicaCount }}
+  selector:
+    matchLabels:
+      app: producer
+  template:
+    metadata:
+      labels:
+        app: producer
+    spec:
+      containers:
+      - name: producer
+        image: {{ .Values.producer.image }}
+        ports:
+        - containerPort: 8080
+        env:
+        - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
+          value: kafka-service:9092
+        - name: MANAGEMENT_ZIPKIN_TRACING_ENDPOINT
+          value: http://zipkin-service:9411/api/v2/spans

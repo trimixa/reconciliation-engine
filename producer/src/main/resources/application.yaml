@@ -10,3 +10,16 @@ spring:
 #bootstrap-servers: localhost:9092: This is the exact address and port where we told Docker to run Kafka. This is how your Java app finds the conveyor belt.
 #key-serializer & value-serializer: Kafka doesn't understand Java objects; it only understands raw bytes over a network.
 #These serializers act as translators. The JsonSerializer tells Spring Boot: "Whenever I give you a Java object, automatically translate it into a JSON string before pushing it to Kafka."
+
+# Tracing & Observability
+management:
+  tracing:
+    sampling:
+      probability: 1.0 # Trace 100% of requests for development
+  zipkin:
+    tracing:
+      endpoint: "http://localhost:9411/api/v2/spans"
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus

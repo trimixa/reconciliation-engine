@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Reconcile - Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon"></div>
+                <h1>Nexus Reconcile</h1>
+            </div>
+            <div class="status-indicator">
+                <span class="pulse-dot"></span>
+                <span class="status-text">System Live</span>
+            </div>
+        </header>
+
+        <main>
+            <section class="stats-grid">
+                <div class="stat-card glass">
+                    <h3 class="stat-title">Total Anomalies</h3>
+                    <p class="stat-value" id="total-anomalies">0</p>
+                </div>
+                <div class="stat-card glass warning">
+                    <h3 class="stat-title">Open Anomalies</h3>
+                    <p class="stat-value" id="open-anomalies">0</p>
+                </div>
+                <div class="stat-card glass success">
+                    <h3 class="stat-title">Resolved</h3>
+                    <p class="stat-value" id="resolved-anomalies">0</p>
+                </div>
+                <div class="stat-card glass primary">
+                    <h3 class="stat-title">Resolution Rate</h3>
+                    <p class="stat-value" id="resolution-rate">0%</p>
+                </div>
+            </section>
+
+            <section class="data-section glass">
+                <div class="section-header">
+                    <h2>Live Anomalies Feed</h2>
+                    <button id="refresh-btn" class="btn primary-btn">Refresh Data</button>
+                </div>
+                <div class="table-container">
+                    <table id="anomalies-table">
+                        <thead>
+                            <tr>
+                                <th>Transaction ID</th>
+                                <th>Reason</th>
+                                <th>Timestamp</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="anomalies-body">
+                            <!-- Rows injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination">
+                    <button id="prev-page" class="btn outline-btn" disabled>Previous</button>
+                    <span id="page-info">Page 1</span>
+                    <button id="next-page" class="btn outline-btn">Next</button>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
