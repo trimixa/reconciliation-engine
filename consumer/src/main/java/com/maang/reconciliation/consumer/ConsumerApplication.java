@@ -13,14 +13,10 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class ConsumerApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(ConsumerApplication.class, args);
-    }
-
-    @PostConstruct
-    public void init() {
         // Fixes "FATAL: invalid value for parameter TimeZone: Asia/Calcutta"
         // by forcing the JVM to use the modern "Asia/Kolkata" timezone identifier
         // which the latest PostgreSQL versions require.
         TimeZone.setDefault(TimeZone.getTimeZone("Asia/Kolkata"));
+        SpringApplication.run(ConsumerApplication.class, args);
     }
 }

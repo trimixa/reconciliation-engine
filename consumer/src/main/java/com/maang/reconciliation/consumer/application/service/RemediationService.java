@@ -74,4 +74,38 @@ public class RemediationService {
             throw new RuntimeException("Outbox Event creation failed, triggering rollback", e);
         }
     }
+    @Transactional
+    public void resolveAllAnomalies(String idempotencyKey) {
+        // 1. Check Idempotency Key
+        if (idempotencyKey != null && !idempotencyKey.isBlank()) {
+            String redisKey = "idempotency:resolveAll:" + idempotencyKey;
+            Boolean isNew = redisTemplate.opsForValue().setIfAbsent(redisKey, "processed", 24, TimeUnit.HOURS);
+            if (Boolean.FALSE.equals(isNew)) {
+                logger.info("ℹ️ [REMEDIATION] Request with idempotency key {} already processed.", idempotencyKey);
+                return;
+            }
+        }
+
+        logger.info("🛠️ [REMEDIATION] Attempting to resolve all OPEN anomalies");
+        
+        java.util.List<Anomaly> openAnomalies = anomalyRepository.findByStatus("OPEN");
+        if (openAnomalies.isEmpty()) {
+            logger.info("ℹ️ [REMEDIATION] No open anomalies found to resolve.");
+            return;
+        }
+
+        for (Anomaly anomaly : openAnomalies) {
+            anomaly.setStatus("RESOLVED");
+            anomalyRepository.save(anomaly);
+            try {
+                String payload = objectMapper.writeValueAsString(anomaly);
+                OutboxEvent event = new OutboxEvent(anomaly.getTransactionId(), "Anomaly", "resolved-transactions", payload);
+                outboxEventRepository.save(event);
+            } catch (Exception e) {
+                logger.error("🔥 [FATAL] Failed to serialize OutboxEvent payload for transaction {}. Rolling back database transaction.", anomaly.getTransactionId(), e);
+                throw new RuntimeException("Outbox Event creation failed, triggering rollback", e);
+            }
+        }
+        logger.info("✅ [REMEDIATION] Successfully resolved {} anomalies and saved OutboxEvents.", openAnomalies.size());
+    }
 }

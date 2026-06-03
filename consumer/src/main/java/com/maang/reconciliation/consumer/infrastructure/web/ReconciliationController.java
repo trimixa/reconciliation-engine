@@ -105,4 +105,19 @@ public class ReconciliationController {
             return ResponseEntity.internalServerError().body("Failed to resolve anomaly: " + e.getMessage());
         }
     }
+    @Operation(summary = "Resolve all anomalies", description = "Marks all open anomalies as RESOLVED and publishes correction events.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Successfully resolved anomalies"),
+            @ApiResponse(responseCode = "500", description = "Internal server error during resolution")
+    })
+    @PostMapping("/anomalies/resolve-all")
+    public ResponseEntity<String> resolveAllAnomalies(
+            @org.springframework.web.bind.annotation.RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey) {
+        try {
+            remediationService.resolveAllAnomalies(idempotencyKey);
+            return ResponseEntity.ok("Successfully resolved all open anomalies");
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Failed to resolve anomalies: " + e.getMessage());
+        }
+    }
 }

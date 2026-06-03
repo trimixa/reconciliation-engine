@@ -107,12 +107,28 @@ function App() {
     }
   };
 
+  const handleResolveAll = async () => {
+    try {
+      const idempotencyKey = crypto.randomUUID();
+      await axios.post('/api/anomalies/resolve-all', null, {
+        headers: {
+          'Idempotency-Key': idempotencyKey
+        }
+      });
+      // Refresh local table immediately
+      fetchAnomalies(currentPage);
+    } catch (error) {
+      console.error("Error resolving all anomalies", error);
+      alert('Failed to resolve all anomalies');
+    }
+  };
+
   return (
     <div className="dashboard-container">
       <header>
         <div className="logo">
           <div className="logo-icon"></div>
-          <h1>Nexus Reconcile</h1>
+          <h1>ReconCore</h1>
         </div>
         <div className="status-indicator">
           <span className="pulse-dot"></span>
@@ -143,7 +159,17 @@ function App() {
         <section className="data-section glass">
           <div className="section-header">
             <h2>Live Anomalies Feed</h2>
-            <button onClick={handleRefresh} className="btn primary-btn">Refresh Data</button>
+            <div style={{ display: 'flex', gap: '1rem' }}>
+              <button 
+                onClick={handleResolveAll} 
+                className="btn resolve-btn" 
+                disabled={stats.openAnomalies === 0}
+                style={{ opacity: stats.openAnomalies === 0 ? 0.5 : 1, cursor: stats.openAnomalies === 0 ? 'not-allowed' : 'pointer', fontSize: '1rem', padding: '0.5rem 1rem' }}
+              >
+                Resolve All
+              </button>
+              <button onClick={handleRefresh} className="btn primary-btn">Refresh Data</button>
+            </div>
           </div>
           <div className="table-container">
             <table>

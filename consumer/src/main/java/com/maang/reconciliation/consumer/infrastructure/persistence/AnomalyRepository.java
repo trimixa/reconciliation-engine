@@ -8,4 +8,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface AnomalyRepository extends JpaRepository<Anomaly, String> {
     long countByStatus(String status);
+    java.util.List<Anomaly> findByStatus(String status);
 }

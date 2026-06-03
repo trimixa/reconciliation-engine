@@ -29,7 +29,7 @@ public class SecurityConfig {
                 .requestMatchers("/actuator/**").permitAll()
                 // API endpoints
                 .requestMatchers(HttpMethod.GET, "/api/anomalies/**").hasAnyRole("USER", "ADMIN")
-                .requestMatchers(HttpMethod.POST, "/api/anomalies/*/resolve").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/anomalies/*/resolve", "/api/anomalies/resolve-all").hasRole("ADMIN")
                 .anyRequest().authenticated()
             )
             .httpBasic(withDefaults());

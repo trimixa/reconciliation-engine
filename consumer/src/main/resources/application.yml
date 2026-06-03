@@ -8,7 +8,7 @@ spring:
 
   # 2. The Conveyor Belt (Kafka)
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: 127.0.0.1:19092
     consumer:
       group-id: reconciliation-group
       auto-offset-reset: earliest
@@ -19,17 +19,17 @@ spring:
         # Ignore the Producer's shipping label
         spring.json.use.type.headers: false
         # Force the JSON into the Consumer's local blueprint
-        spring.json.value.default.type: com.maang.reconciliation.consumer.model.Transaction
+        spring.json.value.default.type: com.maang.reconciliation.consumer.domain.Transaction
 
   # 3. The Temporary Cache (Redis)
   data:
     redis:
       host: localhost
-      port: 6379
+      port: 16379
 
   # 4. The Permanent Vault (PostgreSQL)
   datasource:
-    url: jdbc:postgresql://localhost:5432/bank_reconciliation
+    url: jdbc:postgresql://127.0.0.1:5432/bank_reconciliation
     username: admin
     password: password
     driver-class-name: org.postgresql.Driver
