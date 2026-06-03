@@ -1,9 +1,9 @@
 package com.maang.reconciliation.consumer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.maang.reconciliation.consumer.model.Anomaly;
-import com.maang.reconciliation.consumer.model.Transaction;
-import com.maang.reconciliation.consumer.repository.AnomalyRepository;
+import com.maang.reconciliation.consumer.domain.Anomaly;
+import com.maang.reconciliation.consumer.domain.Transaction;
+import com.maang.reconciliation.consumer.infrastructure.persistence.AnomalyRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

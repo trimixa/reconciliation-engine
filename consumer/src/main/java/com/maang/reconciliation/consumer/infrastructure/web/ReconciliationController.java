@@ -72,11 +72,13 @@ public class ReconciliationController {
         if (emitters.isEmpty()) return;
         try {
             AnomalyStats stats = getStats().getBody();
-            for (SseEmitter emitter : emitters) {
-                try {
-                    emitter.send(SseEmitter.event().name("stats").data(stats));
-                } catch (Exception e) {
-                    emitters.remove(emitter);
+            if (stats != null) {
+                for (SseEmitter emitter : emitters) {
+                    try {
+                        emitter.send(SseEmitter.event().name("stats").data(stats));
+                    } catch (Exception e) {
+                        emitters.remove(emitter);
+                    }
                 }
             }
         } catch (Exception e) {

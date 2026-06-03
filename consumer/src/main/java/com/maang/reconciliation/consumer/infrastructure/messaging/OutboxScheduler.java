@@ -33,7 +33,7 @@ public class OutboxScheduler {
         for (OutboxEvent event : pendingEvents) {
             try {
                 // Publish to Kafka
-                kafkaTemplate.send(event.getTopic(), event.getPayload());
+                kafkaTemplate.send(java.util.Objects.requireNonNull(event.getTopic()), java.util.Objects.requireNonNull(event.getPayload()));
                 
                 // Mark as processed
                 event.setProcessed(true);
