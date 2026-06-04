@@ -45,7 +45,10 @@
             <section class="data-section glass">
                 <div class="section-header">
                     <h2>Live Anomalies Feed</h2>
-                    <button id="refresh-btn" class="btn primary-btn">Refresh Data</button>
+                    <div style="display: flex; gap: 1rem;">
+                        <button id="resolve-all-btn" class="btn resolve-btn" disabled style="opacity: 0.5; cursor: not-allowed; font-size: 1rem; padding: 0.5rem 1rem;">Resolve All</button>
+                        <button id="refresh-btn" class="btn primary-btn">Refresh Data</button>
+                    </div>
                 </div>
                 <div class="table-container">
                     <table id="anomalies-table">

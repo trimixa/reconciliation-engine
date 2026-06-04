@@ -6,8 +6,11 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+import org.springframework.retry.annotation.EnableRetry;
+
 @SpringBootApplication
 @EnableScheduling
+@EnableRetry
 public class ProducerApplication {
 
 	private static final Logger logger = LoggerFactory.getLogger(ProducerApplication.class);

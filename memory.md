@@ -2,7 +2,9 @@
 
 ## Stack & Environment
 - **Backend:** Java + Spring Boot (Producer & Consumer)
-- **Infrastructure:** Apache Kafka (Message Broker), Redis (Matching Cache, 5-minute TTL), PostgreSQL (Permanent Vault), Docker Compose
+- **Frontend:** React 19 + TypeScript + Vite + Vanilla CSS
+- **Infrastructure:** Apache Kafka (Message Broker), Redis (Matching Cache, 5-minute TTL), PostgreSQL (Permanent Vault), Docker Compose, Kubernetes (Helm Charts)
+- **Monitoring:** Prometheus
 - **IDE:** IntelliJ IDEA
 - **Local AI Command Center (Continue.dev):**
   - Main coding model: Qwen 2.5 Coder 32B (local, Ollama via RTX 5070 Ti VRAM)
@@ -20,50 +22,52 @@
 - Redis cross-stream matching logic & 5m TTL expiry handler
 - Orphaned transaction vault (PostgreSQL via Spring Data JPA)
 - Zero-cost local AI coding setup inside IntelliJ to bypass cloud limits
-- Built REST API layer (`ReconciliationController` with `GET /api/anomalies`)
+- Built REST API layer (`ReconciliationController` with `GET /api/anomalies`, `stats`, `resolve`)
 - Setup Swagger/OpenAPI documentation
 - Fixed catastrophic code loss (restored `consumeCbsLog`)
 - Replaced volatile memory buffer with robust Kafka DLQ (`anomaly-dlq`)
 - Standardized entire repository to Java 21 LTS
 - Resolved strict IDE static analyzer warnings for Null Type Safety across services
 - Cleaned up obsolete test files (`AnomalyBufferTest.java`)
-- Implemented Phase 3 Remediation API (resolving anomalies, `@Transactional` DB updates, Kafka events)
-- Completed Phase 2 Visibility (REST API) with Swagger UI and `/api/anomalies/stats` endpoint
-- Implemented Phase 4 Quality Assurance (Testcontainers Integration Tests, GitHub Actions CI/CD)
+- Phase 2: Visibility (REST API & Swagger)
+- Phase 3: Remediation API (resolving anomalies, `@Transactional` DB updates, bulk resolve-all, interactive React dashboard)
+- Phase 4: Quality Assurance (Testcontainers Integration Tests, GitHub Actions CI/CD)
+- Phase 5: Scalability & Outbox Pattern for reliable transactional messaging between database and Kafka. Kubernetes Helm charts.
+- Phase 6: Security Enhancements (Spring Security, Basic Auth, RBAC Admin/User roles)
+- Phase 7 & 8: Monitoring with Prometheus, and Advanced Pagination for the REST APIs.
+- Phase 9: Comprehensive documentation (README.md) overhaul.
 
 ### 🔄 In Progress
-- Finalize system scaling and disaster recovery strategies (Phase 5)
+- Finalize system disaster recovery strategies (Phase 5).
+- Grafana dashboard visualization (Phase 7).
 
 ### ⏳ TODO
 - High-volume load testing
 
 ## Last Session
-- **Date:** [05-06-2026]
-- **What I did:** Completed Phase 4 (Quality Assurance). Wrote `ReconciliationIntegrationTest` utilizing Testcontainers for Kafka, Redis, and Postgres. Added GitHub Actions CI pipeline (`ci.yml`) to automatically test the `consumer` and `producer` applications on pull requests.
-- **Where I stopped:** The CI pipeline and Integration Tests are in place. Next up: building horizontal scaling strategies and disaster recovery (Phase 5).
+- **Date:** [05-06-2026] (Current updates)
+- **What I did:** Analyzed the latest codebase updates. Added the missing "Resolve All" button to the static HTML UI. Updated the `README.md` to comprehensively document the new React dashboard, Outbox Pattern, Kubernetes setup, and Spring Security integrations. Updated `roadmap.md` and `memory.md` to reflect all completed phases (5, 6, 7, 8, 9).
+- **Where I stopped:** The project is functionally very complete. Security is in place, K8s charts are ready, and both UIs are fully functional.
 
 ## Key Decisions
-- **Architecture:** Redis TTL = 5 minutes; Orphaned transactions → PostgreSQL vault. If vault is offline → Kafka DLQ (`anomaly-dlq`).
+- **Architecture:** Redis TTL = 5 minutes; Orphaned transactions → PostgreSQL vault. If vault is offline → Kafka DLQ (`anomaly-dlq`). Outbox Pattern ensures eventual consistency between the database and Kafka.
 - **Workflow:** Use AI to learn and review (not just vibe code). DeepSeek R1 is reserved for Chat/Reasoning mode.
 - **Tooling:** Sticking with IntelliJ IDEA by utilizing free, local LLMs to replace expensive cloud subscriptions, achieving a ₹0 setup cost.
 
 ## Recent Work
 
-### Phase 2: Visibility
+### Phase 3: Remediation
 **Accomplishments:**
-- Implemented Swagger/OpenAPI documentation and verified it at http://localhost:8081/swagger-ui/index.html.
-- The `GET /api/anomalies` endpoint is now visible and interactable through the Swagger UI.
-- Implemented the `GET /api/anomalies/stats` endpoint to return system metrics (total anomalies, open vs resolved, resolution rate).
+- Implemented bulk resolution via `POST /api/anomalies/resolve-all`.
+- Integrated "Resolve All" button in both React and Static Vanilla JS dashboards.
 
-### Phase 3: Resiliency
+### Phase 5 & 6: Scalability & Security
 **Progress:**
-- Added Resilience4j for circuit breaking in `ReconciliationService`.
-- Refactored the `saveAnomaly` method to ensure the circuit breaker trips immediately if the database is down.
-- The engine now survives database outages by tripping the "databaseService" circuit breaker and logging fallbacks to the console.
+- Deployed Helm charts in `k8s/helm-chart`.
+- Implemented Outbox Pattern to guarantee message delivery to Kafka after DB transaction commits.
+- Secured API endpoints with Spring Security and Role-Based Access Control (RBAC).
 
-**Tech Stack Updates:**
-- Confirmed the use of Java 21 and Spring Boot 3.2.5.
-- Added the correct dependencies for Spring Kafka (`org.springframework.kafka:spring-kafka`) and Springdoc OpenAPI.
-
-### Lessons Learned:
-- Maven dependency resolution quirks: The Kafka starter uses `org.springframework.kafka:spring-kafka` instead of the spring-boot-starter naming convention.
+### Phase 7 & 8: Monitoring & Tuning
+**Progress:**
+- Added `prometheus.yml` for metrics scraping.
+- Successfully implemented paginated results (`?page=X&size=Y`) for anomalies to handle large datasets cleanly.

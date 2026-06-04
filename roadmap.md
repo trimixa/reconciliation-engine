@@ -41,8 +41,10 @@ The core backend processing loop is fully operational.
 * **Goal:** Allow users or automated scripts to fix bad data.
 * **Tasks:**
     - ✅ Implement a `POST /api/anomalies/{id}/resolve` endpoint.
+    - ✅ Implement a bulk `POST /api/anomalies/resolve-all` endpoint.
+    - ✅ Built interactive dashboards (React & Static HTML) with "Resolve All" functionalities.
     - ✅ Update the PostgreSQL database state upon resolution.
-    - ✅ Trigger correction events back into Kafka for system consistency.
+    - ✅ Trigger correction events back into Kafka for system consistency (via Outbox Pattern).
     - ✅ Ensure proper transaction management (`@Transactional`) and error handling.
 
 ### Phase 4: Quality Assurance ✅ COMPLETE
@@ -52,39 +54,41 @@ The core backend processing loop is fully operational.
     - ✅ Write integration tests verifying the anomaly detection logic.
     - ✅ Establish a CI/CD pipeline for automated builds, tests, and deployments.
 
-### Phase 5: Scalability and Fault Tolerance
+### Phase 5: Scalability and Fault Tolerance (⏳ IN PROGRESS)
 * **Goal:** Ensure high availability and fault tolerance in production.
 * **Tasks:**
-    - Design horizontal scaling strategies using load balancers and auto-scaling groups.
+    - ✅ Implement Kubernetes deployment via Helm charts (`k8s/helm-chart`).
     - Implement circuit breakers (Resilience4j) to handle unexpected loads gracefully (✅ DLQ Fallback implemented).
+    - ✅ Implement Outbox Pattern for reliable transactional messaging between database and Kafka.
     - Plan for disaster recovery and backup strategies.
 
-### Phase 6: Security Enhancements
+### Phase 6: Security Enhancements (✅ COMPLETE)
 * **Goal:** Secure the application from potential threats.
 * **Tasks:**
-    - Integrate Spring Security for authentication and authorization.
-    - Implement role-based access control (RBAC).
-    - Encrypt sensitive data at rest and in transit.
+    - ✅ Integrate Spring Security for authentication and authorization (Basic Auth implemented).
+    - ✅ Implement role-based access control (RBAC - ADMIN/USER roles configured).
+    - Encrypt sensitive data at rest and in transit (Left for future scope/infra layer).
 
-### Phase 7: Monitoring and Logging
+### Phase 7: Monitoring and Logging (⏳ IN PROGRESS)
 * **Goal:** Implement robust monitoring and logging.
 * **Tasks:**
-    - Integrate monitoring tools like Prometheus and Grafana.
+    - ✅ Integrate monitoring tools like Prometheus (`prometheus.yml`).
+    - Integrate Grafana for metric visualization.
     - Set up log aggregation using tools like ELK Stack for efficient troubleshooting.
 
-### Phase 8: API & System Tuning
+### Phase 8: API & System Tuning (⏳ IN PROGRESS)
 * **Goal:** Improve API performance and system throughput.
 * **Tasks:**
-    - Implement advanced pagination for the REST APIs.
+    - ✅ Implement advanced pagination for the REST APIs.
     - Tune Kafka consumer concurrency settings.
     - Optimize PostgreSQL indexes for fast querying of anomalies.
 
-### Phase 9: Documentation and Maintenance
+### Phase 9: Documentation and Maintenance (✅ COMPLETE)
 * **Goal:** Maintain comprehensive documentation for long-term sustainability.
 * **Tasks:**
-    - Document the system architecture, API endpoints, and operational procedures.
-    - Establish a process for regular updates and maintenance of the documentation.
-    - Foster knowledge sharing within the team to ensure continuity.
+    - ✅ Document the system architecture, API endpoints, and operational procedures (Done via README.md update).
+    - ✅ Establish a process for regular updates and maintenance of the documentation.
+    - ✅ Foster knowledge sharing within the team to ensure continuity.
 
 ## 6. AI Assistant Instructions
 When assisting with this codebase, act as a Senior Software Development Engineer. Prioritize code quality, scalability, and modern architectural patterns. Explain the *why* behind architectural decisions to ensure deep understanding of distributed systems.

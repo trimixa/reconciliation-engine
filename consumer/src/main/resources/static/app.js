@@ -11,7 +11,8 @@ document.addEventListener('DOMContentLoaded', () => {
         prevBtn: document.getElementById('prev-page'),
         nextBtn: document.getElementById('next-page'),
         pageInfo: document.getElementById('page-info'),
-        refreshBtn: document.getElementById('refresh-btn')
+        refreshBtn: document.getElementById('refresh-btn'),
+        resolveAllBtn: document.getElementById('resolve-all-btn')
     };
 
     // Initial Fetch
@@ -47,6 +48,28 @@ document.addEventListener('DOMContentLoaded', () => {
         fetchStats();
     });
 
+    elements.resolveAllBtn.addEventListener('click', async () => {
+        try {
+            const idempotencyKey = crypto.randomUUID();
+            const res = await fetch('/api/anomalies/resolve-all', {
+                method: 'POST',
+                headers: {
+                    'Idempotency-Key': idempotencyKey
+                }
+            });
+            
+            if (res.ok) {
+                fetchAnomalies();
+                fetchStats();
+            } else {
+                alert('Failed to resolve all anomalies');
+            }
+        } catch (error) {
+            console.error("Error resolving all anomalies", error);
+            alert('Failed to connect to server');
+        }
+    });
+
     async function fetchStats() {
         try {
             const res = await fetch('/api/anomalies/stats');
@@ -64,6 +87,16 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const rate = stats.resolutionRate.toFixed(1);
         elements.resolutionRate.innerText = `${rate}%`;
+
+        if (stats.openAnomalies === 0) {
+            elements.resolveAllBtn.disabled = true;
+            elements.resolveAllBtn.style.opacity = '0.5';
+            elements.resolveAllBtn.style.cursor = 'not-allowed';
+        } else {
+            elements.resolveAllBtn.disabled = false;
+            elements.resolveAllBtn.style.opacity = '1';
+            elements.resolveAllBtn.style.cursor = 'pointer';
+        }
     }
 
     async function fetchAnomalies() {
